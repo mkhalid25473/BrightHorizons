@@ -1,4 +1,4 @@
-// Test Flow Steps
+// Test Spec Flow (Steps)
 // 1. Navigate to BH home page:
 // https://www.brighthorizons.com/ - Done
 // 2. Click on Find a Center option (top header)
@@ -15,6 +15,7 @@ describe('Test Suite', () => {
   it('BH Test Case 1',() => {
     cy.log('Verify the number of centers in New York')
 
+    // Handling the Geolocation pop-up
     cy.visit('https://www.brighthorizons.com/', {
       onBeforeLoad (win) {
         // forced geolocation
@@ -26,9 +27,11 @@ describe('Test Suite', () => {
       },
     });
 
+    // Handling the manage cookies pop-up
     cy.get('#onetrust-accept-btn-handler').click({force:true})
     cy.get("a[class='btn-nav btn btn-large btn-hollow color-nileblue global_header_findcenter track_cta_click']").last().click({force: true})
     
+    // Verified that newly opened page contains:  /child-care-locator
     cy.url().should('include','/child-care-locator')
 
     // cy.get('#onetrust-accept-btn-handler').click({force:true})
@@ -36,48 +39,45 @@ describe('Test Suite', () => {
     cy.wait(2000)
     cy.get('input#addressInput.pac-target-input').type('{enter}');
 
+    // Wait required here
     cy.wait(2000)
 
-    let textFromLabel
-    cy.get('span.resultsNumber',{force: true}).then(($label) => {
+    cy.get('span.resultsNumber').then(($label) => {
       // Extract the text
       let count = $label.text(); 
-      textFromLabel = count
-      
+      cy.log(count)
+      expect(Number(count)).to.equal(20)
     });
 
-    let divCount
-    cy.get('#centerLocator_list > div.centerDetails.results > span').its('length').then((len) => {
-      divCount = len
+    cy.get('div.centerResult').its('length').then((len) => {
+      expect(len).to.equal(20)
     });
     
-    if(divCount === textFromLabel) {
-      cy.log('BH Test Case 1 : List Validation : Passed')
-    } else {
-      cy.log('BH Test Case 1 : List Validation : Failed')
-    }
-    
-    let centerListName = cy.get("h3.centerResult__name").text
-    let centerListAddr = cy.get("span.centerResult__address").text
-
+    // Clicked on the first center on the list
     cy.get("div.description-wrapper > div.heading-section > h3").first().click()
-
-    let centerPopupName = cy.get("span.mapTooltip__headline").text
-    let centerPopupAddr = cy.get("div.mapTooltip__address").text
-
-    if(centerListName === centerPopupName) {
-      cy.log('BH Test Case 1 : Popup Name Validation : Passed')
-    } else {
-      cy.log('BH Test Case 1 : Popup Name Validation : Failed')
-    }
     
-    if(centerListAddr === centerPopupAddr) {
-      cy.log('BH Test Case 1 : Popup Address Validation : Passed')
-      cy.log('BH Test Case 1 : Passed')
-    } else {
-      cy.log('BH Test Case 1 : Popup Address Validation : Failed')
-      cy.log('BH Test Case 1 : Failed')
-    }
+    let name = "Bright Horizons at TriBeCa"
+    let addr = "129 Hudson Street New York, NY 10013"
 
+    cy.get("div.description-wrapper > div.heading-section > h3").first().then((e)=>{
+      expect(e.text().trimEnd()).to.eql(name) 
+    })
+
+    cy.get("div.description-wrapper > div.heading-section > span.centerResult__address").first().then((e)=>{
+      cy.log(e.text().trimEnd())
+      cy.log('equals ' + addr)
+      
+    })
+
+    cy.get("span.mapTooltip__headline").then((e)=>{
+      expect(e.text().trimEnd()).to.eql(name) 
+    })
+
+    cy.get("div.mapTooltip__directions > div.mapTooltip__address").then((e)=>{
+      cy.log(e.text().replace(/(\r\n|\n|\r)/gm, ""))
+      cy.log('equals ' + addr)
+      
+    })
+    
+    })
   })
-})
