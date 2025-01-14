@@ -80,6 +80,15 @@ describe('Test Suite', () => {
     })
     
     })
+
+// Test Spec Flow (Steps)
+// 1. Navigate to BH home page:
+https://www.brighthorizons.com/
+// 2. Click on search/loop icon (top, right corner)
+// 3. Verify if search field is visible on the page
+// 4. Type:
+// Employee Education in 2018: Strategies to Watch into the search field and click on Search button
+// 5. Verify if the first search result is exact match to what you typed into search 
   it('BH Test Case 2',() => {
   cy.log('Verify the search functionality')
 
