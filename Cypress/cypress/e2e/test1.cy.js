@@ -80,4 +80,39 @@ describe('Test Suite', () => {
     })
     
     })
-  })
+  it('BH Test Case 2',() => {
+  cy.log('Verify the search functionality')
+
+    // Handling the Geolocation pop-up
+    cy.visit('https://www.brighthorizons.com/', {
+      onBeforeLoad (win) {
+        // forced geolocation
+        const latitude = 18.5204;
+        const longitude = 73.8567;
+        cy.stub(win.navigator.geolocation, 'getCurrentPosition').callsFake((cb) => {
+          return cb({ coords: { latitude, longitude } });
+        });
+      },
+    });
+
+    // Handling the manage cookies pop-up
+    cy.get('#onetrust-accept-btn-handler').click({force:true})
+
+      // cy.get('body > nav > div.nav-primary-wrap.js-nav-primary-wrap > ul > li:nth-child(10) > a > span').click({force: true})
+    cy.get('body > nav > div:nth-child(2) > button').click()
+    cy.get('a.txt-nav-link.nav-link.track_nav_interact',{timeout:2000}).should('be.visible')
+    
+    cy.wait(2000)
+    cy.get('body > nav > div.nav-primary-wrap.js-nav-primary-wrap.active > ul > li:nth-child(5) > a').click()
+    cy.wait(2000)
+    let searchStr = "Employee Education in 2018: Strategies to Watch"
+    cy.get('input#siteSearchBox').type(searchStr)
+    cy.get('#siteSearchButton').click()
+
+    cy.wait(2000)
+    cy.get('#mainContent > section.search-results > div.results.container > a:nth-child(1) > div > h3').then((e)=>{
+      expect(e.text().trimEnd()).to.eql(searchStr) 
+    })
+})
+
+})
